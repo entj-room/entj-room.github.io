@@ -70,13 +70,25 @@
   .foot p { font-size:9px; color:var(--sub); line-height:1.9; }
   .foot .diag { display:block; text-align:center; border:1.5px solid var(--ink); color:var(--ink); font-weight:900; font-size:12px; border-radius:999px; padding:11px; margin-bottom:10px; text-decoration:none; }
 </style>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-V7JYN6QSSL"></script>
 <script>
+(function(){
+  var q=location.search;
+  try{
+    if(q.indexOf('noga=1')>-1) localStorage.setItem('noga','1');
+    if(q.indexOf('noga=0')>-1) localStorage.removeItem('noga');
+  }catch(e){}
+  var off=false; try{ off = localStorage.getItem('noga')==='1'; }catch(e){}
+  window.__noga = off;
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-V7JYN6QSSL');
-  function track(name, params){ try{ if(typeof gtag==='function') gtag('event', name, params||{}); }catch(e){} }
+  window.gtag = function(){ dataLayer.push(arguments); };
+  if(!off){
+    var s=document.createElement('script'); s.async=true;
+    s.src='https://www.googletagmanager.com/gtag/js?id=G-V7JYN6QSSL';
+    document.head.appendChild(s);
+    gtag('js', new Date()); gtag('config', 'G-V7JYN6QSSL');
+  }
+  window.track = function(name, params){ try{ if(!window.__noga) gtag('event', name, params||{}); }catch(e){} };
+})();
 </script>
 </head>
 <body>
