@@ -161,7 +161,9 @@ function showGate(){
   gateShown = true;
   track('gate_shown', {messages_sent: sentCount});
   setTimeout(()=>{
-    chat.appendChild(el('<div class="gatecard"><b>もっと詳しく聞きたい方へ</b><p>LINE登録(無料)で、回数無制限の相談と、あなたの相性診断に合わせた詳しい攻略が見られます。トークは本人も読んでいます！</p><a class="line-btn" href="#" onclick="track('line_click', {messages_sent: sentCount})">LINEで友だち追加して続ける(無料)</a></div>'));
+    var card = el('<div class="gatecard"><b>もっと詳しく聞きたい方へ</b><p>LINE登録(無料)で、回数無制限の相談と、あなたの相性診断に合わせた詳しい攻略が見られます。トークは本人も読んでいます！</p><a class="line-btn" href="#">LINEで友だち追加して続ける(無料)</a></div>');
+    card.querySelector('.line-btn').addEventListener('click', function(){ track('line_click', {messages_sent: sentCount}); });
+    chat.appendChild(card);
     scrollBottom();
   }, 2600);
 }
