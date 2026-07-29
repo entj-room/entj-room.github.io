@@ -130,7 +130,7 @@
     <input id="input" type="text" placeholder="彼のことで気になっていることは？" onkeydown="if(event.key==='Enter')send()">
     <button class="send" onclick="send()">↑</button>
   </div>
-  <div class="quota" id="quota">無料相談:今日はあと <b id="left">5</b> 往復</div>
+  <div class="quota" id="quota">無料相談:今日はあと <b id="left">10</b> 往復</div>
 
   <div class="foot">
     <a class="diag" href="#" onclick="track('diag_click')">2人の相性を診断する(無料・1分)</a>
@@ -141,7 +141,7 @@
 <script>
 const chat = document.getElementById('chat');
 const AVA = '<svg viewBox="0 0 48 48"><polygon points="24,4 34,10 34,20 24,26 14,20 14,10" fill="#2E2D73"/><polygon points="24,8 30,11.5 24,15 18,11.5" fill="#F0C9A8"/><rect x="19" y="14" width="10" height="5" rx="1" fill="#F0C9A8"/><polygon points="24,26 38,34 38,44 10,44 10,34" fill="#5B59B8"/><polygon points="24,26 30,30 24,40 18,30" fill="#fff"/></svg>';
-let leftCount = 5;
+let leftCount = 10;
 let gateShown = false;
 
 function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
@@ -157,14 +157,22 @@ function userSay(text){
   chat.lastElementChild.querySelector('.bubble').textContent = text;
   scrollBottom();
 }
-function showGate(){
+function botTyping(){
+  const t = el('<div class="msg"><div class="mini">'+AVA+'</div><div class="bubble typing"><i></i><i></i><i></i></div></div>');
+  chat.appendChild(t); scrollBottom(); return t;
+}
+function botResolve(t, text, isHtml){
+  const b = document.createElement('div'); b.className = 'bubble';
+  if(isHtml){ b.innerHTML = text; }
+  else { b.textContent = text; b.innerHTML = b.innerHTML.replace(/\n/g,'<br>'); }
+  t.querySelector('.bubble').replaceWith(b);
+  scrollBottom();
+}
+function showLimit(){
   gateShown = true;
-  track('gate_shown', {messages_sent: sentCount});
+  track('limit_reached', {messages_sent: sentCount});
   setTimeout(()=>{
-    var card = el('<div class="gatecard"><b>もっと詳しく聞きたい方へ</b><p>LINE登録(無料)で、回数無制限の相談と、あなたの相性診断に合わせた詳しい攻略が見られます。トークは本人も読んでいます！</p><a class="line-btn" href="#">LINEで友だち追加して続ける(無料)</a></div>');
-    card.querySelector('.line-btn').addEventListener('click', function(){ track('line_click', {messages_sent: sentCount}); });
-    chat.appendChild(card);
-    scrollBottom();
+    botSay('今日の無料相談はここまでです！ここまで話してくれてありがとうございました。続きが聞きたくなったら、また明日来てください。TikTokのコメント欄でも待っています！');
   }, 2600);
 }
 
@@ -188,9 +196,44 @@ const REPLIES = [
 ];
 const DEFAULT_REPLY = 'なるほど、もう少し詳しく聞かせてください！僕の中にはENTJの恋愛行動データと、TikTokで答えてきた相談アーカイブが入っています。「いまの関係(片思い/交際中/復縁)」と「直近の彼の行動」が分かると、彼の頭の中を「彼視点」でズバリ解説できますよ！';
 
-function reply(text){
+// Cloudflare WorkerのURLを設定するとAI回答モードになる(空文字なら従来の台本モード)
+const API_URL = '';
+let history = [];
+
+function scriptReply(text){
   const hit = REPLIES.find(r => r.keys.some(k => text.includes(k)));
-  botSay(hit ? hit.text : DEFAULT_REPLY);
+  return hit ? hit.text : DEFAULT_REPLY;
+}
+function useScript(t, text, reason){
+  const rtext = scriptReply(text);
+  history.push({role:'assistant', content: rtext});
+  track('chat_reply', {source: reason ? 'script_fallback' : 'script', message_number: sentCount, reason: reason || ''});
+  if(t){ botResolve(t, rtext, true); } else { botSay(rtext); }
+}
+function reply(text){
+  history.push({role:'user', content: text});
+  if(!API_URL){ useScript(null, text, ''); return; }
+  const t = botTyping();
+  const ctrl = ('AbortController' in window) ? new AbortController() : null;
+  const timer = setTimeout(()=>{ if(ctrl) ctrl.abort(); }, 25000);
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({messages: history.slice(-10)}),
+    signal: ctrl ? ctrl.signal : undefined
+  }).then(r => r.json()).then(d => {
+    clearTimeout(timer);
+    if(d && d.ok && d.reply){
+      history.push({role:'assistant', content: d.reply});
+      track('chat_reply', {source: d.source === 'crisis' ? 'crisis' : 'llm', message_number: sentCount});
+      botResolve(t, d.reply, false);
+    } else {
+      useScript(t, text, (d && d.reason) || 'unknown');
+    }
+  }).catch(() => {
+    clearTimeout(timer);
+    useScript(t, text, 'network');
+  });
 }
 
 function ask(text){ handle(text); }
@@ -202,7 +245,7 @@ function send(){
 }
 let sentCount = 0;
 function handle(text){
-  if(leftCount<=0){ if(!gateShown) showGate(); return; }
+  if(leftCount<=0){ if(!gateShown) showLimit(); return; }
   userSay(text);
   sentCount++;
   if(sentCount===1) track('chat_start');
@@ -210,8 +253,7 @@ function handle(text){
   leftCount--;
   document.getElementById('left').textContent = leftCount;
   reply(text);
-  if(leftCount===2 && !gateShown) showGate();
-  if(leftCount===0 && !gateShown) showGate();
+  if(leftCount===0 && !gateShown) showLimit();
 }
 
 // opening
