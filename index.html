@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTJくんの部屋|司令塔の恋愛相談</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Jost:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#3B3A8F; --ink2:#6D6BD0; --lav:#F1F0FB; --lav2:#E4E2F7;
+    --text:#3A3A44; --sub:#9A98B0; --line:#ECEAF6;
+    --grad:linear-gradient(135deg,#3B3A8F,#6D6BD0);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body { font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic StdN","Hiragino Sans",sans-serif; background:#E9E8F2; color:var(--text); display:flex; justify-content:center; }
+  .app { width:100%; max-width:430px; background:#fff; min-height:100vh; display:flex; flex-direction:column; box-shadow:0 0 40px rgba(59,58,143,.12); }
+
+  /* header */
+  .topbar { padding:12px 16px 10px; text-align:center; border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:10; }
+  .topbar .en { font-family:"Jost",sans-serif; font-size:8px; letter-spacing:.42em; color:var(--ink2); display:block; margin-bottom:2px; }
+  .topbar .jp { font-weight:900; color:var(--ink); font-size:13px; letter-spacing:.14em; }
+
+  /* hero(コンパクト) */
+  .hero { background:var(--grad); color:#fff; padding:18px 18px 16px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.08); top:-70px; right:-40px; }
+  .hero-row { display:flex; gap:14px; align-items:center; position:relative; }
+  .avatar { width:58px; height:58px; border-radius:50%; background:#fff; flex:0 0 auto; display:flex; align-items:center; justify-content:center; border:2.5px solid rgba(255,255,255,.7); }
+  .avatar svg { width:44px; height:44px; }
+  .hero h1 { font-size:17px; font-weight:900; line-height:1.45; letter-spacing:.04em; }
+  .hero .sub-copy { font-size:10.5px; opacity:.92; margin-top:4px; line-height:1.7; }
+  .badges { display:flex; gap:6px; margin-top:12px; position:relative; }
+  .badge { flex:1; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.35); border-radius:10px; padding:7px 4px; text-align:center; }
+  .badge b { display:block; font-size:9.5px; font-weight:900; letter-spacing:.03em; }
+  .badge span { font-size:8px; opacity:.85; display:block; margin-top:2px; }
+
+  /* chat */
+  .chat { flex:1; padding:16px 14px 8px; background:#FBFAFF; display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
+  .msg { display:flex; gap:8px; align-items:flex-end; max-width:88%; }
+  .msg .mini { width:28px; height:28px; border-radius:50%; background:var(--lav); border:1.5px solid var(--lav2); flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
+  .msg .mini svg { width:20px; height:20px; }
+  .bubble { background:#fff; border:1px solid var(--line); border-radius:16px 16px 16px 4px; padding:11px 13px; font-size:12.5px; line-height:1.9; }
+  .msg.user { align-self:flex-end; flex-direction:row-reverse; }
+  .msg.user .bubble { background:var(--grad); color:#fff; border:none; border-radius:16px 16px 4px 16px; }
+  .name { font-family:"Jost",sans-serif; font-size:8px; letter-spacing:.2em; color:var(--sub); margin:0 0 3px 36px; }
+  .typing { display:inline-flex; gap:4px; padding:13px 14px; }
+  .typing i { width:6px; height:6px; border-radius:50%; background:var(--ink2); opacity:.4; animation:tp 1s infinite; }
+  .typing i:nth-child(2){ animation-delay:.2s } .typing i:nth-child(3){ animation-delay:.4s }
+  @keyframes tp { 0%,100%{opacity:.25; transform:translateY(0)} 50%{opacity:1; transform:translateY(-3px)} }
+
+  /* gate card in chat */
+  .gatecard { background:#fff; border:1.5px solid var(--lav2); border-radius:16px; padding:14px; text-align:center; margin:4px auto; max-width:92%; }
+  .gatecard b { font-size:12.5px; font-weight:900; color:#26263A; display:block; line-height:1.7; }
+  .gatecard p { font-size:10px; color:var(--sub); margin-top:4px; line-height:1.8; }
+  .line-btn { display:block; background:#06C755; color:#fff; font-weight:900; font-size:12.5px; letter-spacing:.06em; padding:12px; border-radius:999px; margin-top:10px; box-shadow:0 6px 16px rgba(6,199,85,.25); }
+
+  /* chips + input */
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:10px 14px 4px; background:#FBFAFF; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:0 0 auto; border:1.5px solid var(--lav2); background:#fff; color:var(--ink); border-radius:999px; padding:9px 14px; font-size:11px; font-weight:700; cursor:pointer; }
+  .inputbar { display:flex; gap:8px; padding:10px 14px; background:#FBFAFF; position:sticky; bottom:0; border-top:1px solid var(--line); align-items:center; }
+  .inputbar input { flex:1; border:1.5px solid var(--lav2); background:#fff; border-radius:999px; padding:12px 16px; font-size:13px; font-family:inherit; outline:none; color:var(--text); }
+  .inputbar input:focus { border-color:var(--ink2); }
+  .send { width:42px; height:42px; border-radius:50%; background:var(--grad); border:none; color:#fff; font-size:16px; cursor:pointer; box-shadow:0 4px 12px rgba(59,58,143,.3); flex:0 0 auto; }
+  .quota { text-align:center; font-size:9px; color:var(--sub); padding:4px 0 8px; background:#FBFAFF; }
+
+  /* footer */
+  .foot { padding:12px 16px 18px; background:#FBFAFF; border-top:1px solid var(--line); }
+  .foot p { font-size:9px; color:var(--sub); line-height:1.9; }
+  .foot .diag { display:block; text-align:center; border:1.5px solid var(--ink); color:var(--ink); font-weight:900; font-size:12px; border-radius:999px; padding:11px; margin-bottom:10px; text-decoration:none; }
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-V7JYN6QSSL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-V7JYN6QSSL');
+  function track(name, params){ try{ if(typeof gtag==='function') gtag('event', name, params||{}); }catch(e){} }
+</script>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar"><span class="en">ENTJ LOVE CONSULTATION</span><span class="jp">ENTJくんの部屋 <span style="font-weight:700; font-size:9.5px; color:#9A98B0;">|司令塔の恋愛相談</span></span></div>
+
+  <div class="hero">
+    <div class="hero-row">
+      <div class="avatar">
+        <svg viewBox="0 0 48 48"><polygon points="24,4 34,10 34,20 24,26 14,20 14,10" fill="#2E2D73"/><polygon points="24,8 30,11.5 24,15 18,11.5" fill="#F0C9A8"/><rect x="19" y="14" width="10" height="5" rx="1" fill="#F0C9A8"/><polygon points="24,26 38,34 38,44 10,44 10,34" fill="#5B59B8"/><polygon points="24,26 30,30 24,40 18,30" fill="#fff"/><polygon points="24,30 26,34 24,40 22,34" fill="#B33A5B"/></svg>
+      </div>
+      <div>
+        <h1>ENTJの彼のこと、<br>ENTJの僕に聞いてください！</h1>
+        <div class="sub-copy">彼の頭の中を「彼視点」で答える、ENTJくんです<br>ズバリ言います！</div>
+      </div>
+    </div>
+    <div class="badges">
+      <div class="badge"><b>本人の思考を搭載</b><span>ENTJ本人が監修・回答設計</span></div>
+      <div class="badge"><b>TikTokの相談を学習</b><span>コメント欄の悩みと回答を再現</span></div>
+      <div class="badge"><b>24時間いつでも</b><span>深夜の不安にも即レス</span></div>
+    </div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="chips" id="chips">
+    <button class="chip" onclick="ask('復縁ってあり？')">復縁ってあり？</button>
+    <button class="chip" onclick="ask('急に「かわいい」って言われた')">急に褒められた</button>
+    <button class="chip" onclick="ask('「なんでもいい」はダメ？')">なんでもいいはダメ？</button>
+    <button class="chip" onclick="ask('連絡がそっけない')">連絡がそっけない</button>
+    <button class="chip" onclick="ask('ケンカした')">ケンカした</button>
+    <button class="chip" onclick="ask('彼を振り向かせたい')">振り向かせたい</button>
+    <button class="chip" onclick="ask('会いたいって言ってくれない')">会いたいと言わない</button>
+    <button class="chip" onclick="ask('ENTJと相性いいのは？')">相性いいタイプは？</button>
+    <button class="chip" onclick="ask('どんな人が好き？')">どんな人が好き？</button>
+  </div>
+  <div class="inputbar">
+    <input id="input" type="text" placeholder="彼のことで気になっていることは？" onkeydown="if(event.key==='Enter')send()">
+    <button class="send" onclick="send()">↑</button>
+  </div>
+  <div class="quota" id="quota">無料相談:今日はあと <b id="left">5</b> 往復</div>
+
+  <div class="foot">
+    <a class="diag" href="#" onclick="track('diag_click')">2人の相性を診断する(無料・1分)</a>
+    <p>※このチャットはENTJ本人が監修したAIです。トークは本人も確認し、回答の改善に使われます。内容は一般的なアドバイスであり、特定の結果を保証するものではありません。本サービスは特定の性格検査団体とは無関係です。つらい気持ちが続くときは、1人で抱え込まず信頼できる人や専門の窓口にも頼ってくださいね。</p>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const AVA = '<svg viewBox="0 0 48 48"><polygon points="24,4 34,10 34,20 24,26 14,20 14,10" fill="#2E2D73"/><polygon points="24,8 30,11.5 24,15 18,11.5" fill="#F0C9A8"/><rect x="19" y="14" width="10" height="5" rx="1" fill="#F0C9A8"/><polygon points="24,26 38,34 38,44 10,44 10,34" fill="#5B59B8"/><polygon points="24,26 30,30 24,40 18,30" fill="#fff"/></svg>';
+let leftCount = 5;
+let gateShown = false;
+
+function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+function scrollBottom(){ chat.scrollTop = chat.scrollHeight; }
+
+function botSay(text){
+  const t = el('<div class="msg"><div class="mini">'+AVA+'</div><div class="bubble typing"><i></i><i></i><i></i></div></div>');
+  chat.appendChild(t); scrollBottom();
+  setTimeout(()=>{ t.querySelector('.bubble').outerHTML = '<div class="bubble">'+text+'</div>'; scrollBottom(); }, 900 + Math.min(text.length*8, 1200));
+}
+function userSay(text){
+  chat.appendChild(el('<div class="msg user"><div class="bubble"></div></div>'));
+  chat.lastElementChild.querySelector('.bubble').textContent = text;
+  scrollBottom();
+}
+function showGate(){
+  gateShown = true;
+  track('gate_shown', {messages_sent: sentCount});
+  setTimeout(()=>{
+    chat.appendChild(el('<div class="gatecard"><b>もっと詳しく聞きたい方へ</b><p>LINE登録(無料)で、回数無制限の相談と、あなたの相性診断に合わせた詳しい攻略が見られます。トークは本人も読んでいます！</p><a class="line-btn" href="#" onclick="track('line_click', {messages_sent: sentCount})">LINEで友だち追加して続ける(無料)</a></div>'));
+    scrollBottom();
+  }, 2600);
+}
+
+const REPLIES = [
+  { keys:['振られ','フラれ','本心','素が出せ','友達の方がいい','別れ'], text:'まず、それを抱えたまま過ごしてきたの、しんどかったですね。正直に答えます。僕たちENTJは、思ってもいないことを言えない生き物です。だから別れ際の言葉に、隠された裏はないことが多いです。「嫌いになったわけじゃない」と言ったなら、それも本当。そして大事なのは、それはあなたの価値の話ではなく、彼が自分の感情に納得できなかったという彼側の問題だということです。はっきり伝えたのも、曖昧に引き延ばしてあなたの時間を奪いたくなかったから。伝え方が不器用なのは僕たちの弱点です…本心を探す作業は、もう終わりにして大丈夫です。その時間を、これからのあなたに使ってください！' },
+  { keys:['どんな人','好きなタイプ','理想','将来を信じ','結婚したい'], text:'良い質問です！3つあると思っています。1つ目は、尊敬できる人。僕たちは「自分にできないことができる人」「何かに本気で打ち込んでいる人」に惹かれて、その尊敬がそのまま恋愛感情に変わっていきます。2つ目は、感情でぶつかるより議論ができる人。意見が違うときに「私はこう思う、理由はこう」と言葉にしてくれる人とは、一緒にいて安心できるし、話していて楽しいです。3つ目は、自分の人生をちゃんと持っている人。依存し合う関係より、お互いの目標に向かって高め合える関係に「将来」を感じます。まとめると、「この人となら困難が起きても建設的に乗り越えられそう」と思える人です！' },
+  { keys:['復縁','戻り','よりを戻'], text:'結論から言うと、僕たちは「復縁なし派」と決まっているわけではないです。一度出した結論でも、判断材料が変われば考え直すことはあります！条件は、別れたきっかけがちゃんと改善されていて「今度は長期的にうまくいく」と腑に落ちること。僕たちは感情や寂しさでは戻りません。実は僕も、一度「もう会わない」と決めた人に、理由ができた途端に自分から連絡したことがあります。決断を覆すのはいつも「気持ち」ではなく「材料」でした。だからズバリ言うわね:気持ちをぶつけ直すより、「あの時の原因はこう変わった」を1つ、事実で伝えられる状態を作ることからよ！' },
+  { keys:['かわいい','褒め','急に'], text:'いい質問です！僕たちの行動データに「かわいいは不意打ちで言う。しかもタイミングを計算してる」というのがあります。つまりあの一言、彼の中では準備済みの一手だった可能性が高いです！正直に言うと、僕も「今日言う」と決めた一言を3日持ち歩いたことがあります。ただし本気かどうかの見極めは必要です。本気の僕たちは行動が速い。会う予定を自分から具体で出してくるか、昼の時間に誘ってくるかを見てください。言葉より、時間の使い方に本音が出ます！' },
+  { keys:['なんでもいい','任せ'], text:'ズバリ言うわよ:「なんでもいい」は僕たちがいちばん困る返事です！僕たちは希望を聞きたくないのではなく、あなたの希望という判断材料がないと最適解を出せないんです。地図を渡されずに最短ルートを探せと言われた気分になるんです。僕も昔、「なんでもいいよ」に本気で3時間リサーチした挙句、当日「お寿司の気分じゃない」と言われて崩れ落ちたことがあります…！「お肉の気分」くらいの方向性を1つくれるだけで、彼は喜んで完璧なプランを組みますよ。その場で通らなかった案も、彼は次の機会のためにちゃんと覚えていて、現地や後日にさりげなく叶えに来ます。逆に僕たちは、あなたに「なんでもいいよ」とは言いません。最善を考えて引っ張ること自体が、僕たちの愛情表現なんです！' },
+  { keys:['連絡','そっけない','未読','既読','返信','電話'], text:'まず安心してほしいのですが、僕たちのLINEは「短い。でも返す」なんです！短文=効率であって、冷めではありません。既読スルーはしない主義。連絡が減るときは、冷めたのではなく、別のことに集中しているだけのことが多いです。僕も集中モード中は、大好きな人への返信ほど「後で丁寧に返したいから一旦保留」に入れてしまいます…電話の切り際が急なのも悪気ゼロです。見るべきは文面の温度より行動です！会う予定の話が進んでいるなら、心配いらないと僕は思います！' },
+  { keys:['ケンカ','喧嘩','怒','言い合い','沈黙'], text:'先に結論です:その場で決着をつけようとしないでください！僕たちは論理で詰めそうに見えて、実は「沈黙で怒る」タイプです。感情的に怒鳴ることはほぼありません。彼が黙ったら、それは頭の中で気持ちを整理している最中です。僕も昔、沈黙のまま3日引きずった末に、自分が勝ち負けモードになっていたことを反省して謝りました。「気持ちが追いつくまで少し時間がほしい」と一言だけ伝えて、いったん仕切り直してください。時間を置いた僕たちは、驚くくらい素直に歩み寄ってくれるはずです！' },
+  { keys:['好き','脈','本気','両想い'], text:'ズバリ言うわね:僕たちの脈あり行動、分かりやすすぎるのよ！データから挙げると:①好きな人の前では早口になる ②「会いたい」と言えず「時間空いた？」と聞く ③歩くスピードが気づいたら減速してる ④「寒くない？」「疲れてない？」が増える ⑤将来の話を自然に振ってくる。僕も「会いたい」の4文字が言えなくて、渾身のLINEが「来週、時間空いたりする？」だったことが何度もあります…3つ以上当てはまったら、前向きに考えていい状況です！彼の最近の行動、いくつ当てはまりますか？' },
+  { keys:['会いたい','寂しい','素直','冷たい','塩'], text:'これは僕たちの内面データの核心です。外では塩対応に見えて、本当は誰より寂しがりです！「会いたい」と言えずに「時間空いた？」と聞くし、会いたいのはたぶん彼の方が先。ただ、弱音の吐き方を知らないだけなんです。僕も、寂しかった夜に1時間推敲したLINEが「明日空いてる？」の6文字だったことがあります…弱音を見せるのは本命だけ。彼があなたに少しでも弱い部分を見せたことがあるなら、それは相当特別なサインだと思ってください！' },
+  { keys:['落と','振り向','好かれ','距離を縮め','アプローチ'], text:'結論から言うと、僕たちの恋は「尊敬」から始まります！最短ルートは、尊敬ポイントを1つ作ること。何か1つ、得意なことを見せてください。掃除が得意、くらいでいいんです。その瞬間、あなたは彼の中で「気になる存在」に変わります。褒めるなら「すごい」より「尊敬してる」、そして「頼りにしてる」と言われると僕たちは無敵になります！実際、僕は「頼りにしてる」と言われた日、帰り道でひとりガッツポーズしました。上級テクをひとつ:彼が「俺天才だから」と言ったら「知ってる」と返してみて。照れ隠しへの一番効く返しです！' },
+  { keys:['デート','誘','プラン','お店','初めて'], text:'僕たちとのデート、先にトリセツを共有しますね！店・ルート・時間は下調べ済み、雨天プランまで最初から存在します。待ち合わせは5分前着。だからプランは安心して任せてOKです。その代わり「希望も聞きたい」が本音なので、方向性を1つだけ渡してください。ちなみに記念日の店は1ヶ月前から押さえる派で、サプライズより確実に喜ぶもの派。というのも僕、一度サプライズを盛大に外して以来、事前リサーチ主義に転向したんです…！欲しいものは素直に伝えてもらえる方が、僕たちはずっと嬉しいです！' },
+  { keys:['愚痴','疲れた','聞いてほしい','相談したら'], text:'あるあるですね。僕たちは愚痴に解決策を返しがちです！あなたはただ聞いてほしいだけなのに、頭が勝手に「解決すべき問題」として動き出してしまうんです。僕も昔、彼女の愚痴に改善案を3つ箇条書きで返して、丸1日口をきいてもらえなかったことがあります…対策はシンプルで、話す前に「今日は聞いてほしいだけ」と先に伝えてください。それさえ分かれば、僕たちは最高の聞き役に切り替えられます。ちなみに「疲れた」と言われたら飛んでいくのが僕たちです！' },
+  { keys:['嫉妬','ヤキモチ','男友達','束縛'], text:'正直に言うと、僕たちは「嫉妬しない」と言い張りますが、あなたの友達の男の話は全部覚えています！顔に出さない練習をしているだけ。僕も「ふーん、そうなんだ」と言いながら、頭の中でその男の情報を整理していたことがあります…束縛はしたくない、でも心配はする。だから「着いたら連絡して」は欠かさず言うんです。ズバリ言うわよ:彼の嫉妬を確かめたくて煽るのは逆効果。「あなたが一番頼りになる」と伝える方が、僕たちは安心して素直になれます。不安にさせる駆け引きは、僕たちには逆効果よ！' }
+,
+  { keys:['相性','合う','合わない','うまくいくタイプ'], text:'よく聞かれる質問です！一般的な傾向では、僕たちENTJは、細やかに支えてくれるISFJ、場を明るくしてくれるESFP、戦略の話が通じるINTJあたりと噛み合いやすいと言われます。逆に、自由を最優先するISFPや、感情のケアを最優先するESFJとは、テンポと優先順位の違いで摩擦が出やすいです。ただ正直に言うと、相性は「型」より「扱い方」です。僕たちは日本に2〜3%しかいない少数派なので、理解しようとしてくれるその姿勢だけで、もうかなり特別なんですよ！あなたのタイプを教えてもらえれば、もっと具体的に話せます！' },
+  { keys:['愛情表現','大好き','愛してる','甘え','スキンシップ'], text:'意外に思われるんですが、僕たちの愛情表現はかなりストレートです！ただし連発はしません。「大好き」「愛してる」は、いちばん効くタイミングを狙って言います。軽々しく言わないのは、言葉の価値を下げたくないからです。そして言葉より雄弁なのが行動です。荷物をさりげなく持つ、疲れる前に休憩を入れる、好きだと言っていたお菓子を覚えていて買ってくる。僕も、言葉が照れくさい日は行動に全部託しています…彼の「行動の愛情表現」、思い当たるものはありませんか？' }
+];
+const DEFAULT_REPLY = 'なるほど、もう少し詳しく聞かせてください！僕の中にはENTJの恋愛行動データと、TikTokで答えてきた相談アーカイブが入っています。「いまの関係(片思い/交際中/復縁)」と「直近の彼の行動」が分かると、彼の頭の中を「彼視点」でズバリ解説できますよ！';
+
+function reply(text){
+  const hit = REPLIES.find(r => r.keys.some(k => text.includes(k)));
+  botSay(hit ? hit.text : DEFAULT_REPLY);
+}
+
+function ask(text){ handle(text); }
+function send(){
+  const input = document.getElementById('input');
+  if(!input.value.trim()) return;
+  handle(input.value.trim());
+  input.value='';
+}
+let sentCount = 0;
+function handle(text){
+  if(leftCount<=0){ if(!gateShown) showGate(); return; }
+  userSay(text);
+  sentCount++;
+  if(sentCount===1) track('chat_start');
+  track('chat_message', {message_number: sentCount});
+  leftCount--;
+  document.getElementById('left').textContent = leftCount;
+  reply(text);
+  if(leftCount===2 && !gateShown) showGate();
+  if(leftCount===0 && !gateShown) showGate();
+}
+
+// opening
+setTimeout(()=>{ chat.appendChild(el('<p class="name">ENTJ-KUN</p>')); botSay('ようこそ、ENTJくんの部屋へ！TikTokのコメント欄で答えてきた相談と、ENTJである僕自身の思考データをもとに、彼の頭の中を「彼視点」で解説します。ときどき忖度抜きでズバリ言いますが、それも含めて頼ってください！'); }, 500);
+</script>
+</body>
+</html>
