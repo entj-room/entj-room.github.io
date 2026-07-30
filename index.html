@@ -140,7 +140,10 @@
 <script>
 const chat = document.getElementById('chat');
 const AVA = '<svg viewBox="0 0 48 48"><polygon points="24,4 34,10 34,20 24,26 14,20 14,10" fill="#2E2D73"/><polygon points="24,8 30,11.5 24,15 18,11.5" fill="#F0C9A8"/><rect x="19" y="14" width="10" height="5" rx="1" fill="#F0C9A8"/><polygon points="24,26 38,34 38,44 10,44 10,34" fill="#5B59B8"/><polygon points="24,26 30,30 24,40 18,30" fill="#fff"/></svg>';
-let leftCount = 10;
+function todayKey(){ var d=new Date(); return 'entj_used_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+let usedToday = 0;
+try{ usedToday = parseInt(localStorage.getItem(todayKey())||'0',10)||0; }catch(e){}
+let leftCount = Math.max(0, 10 - usedToday);
 let gateShown = false;
 
 function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
@@ -243,13 +246,15 @@ function send(){
   input.value='';
   input.style.height='auto';
 }
-let sentCount = 0;
+let sentCount = usedToday;
 function handle(text){
   if(leftCount<=0){ if(!gateShown) showLimit(); return; }
   userSay(text);
-  sentCount++;
-  if(sentCount===1) track('chat_start');
-  track('chat_message', {message_number: sentCount});
+  usedToday++;
+  sentCount = usedToday;
+  try{ localStorage.setItem(todayKey(), String(usedToday)); }catch(e){}
+  if(usedToday===1) track('chat_start');
+  track('chat_message', {message_number: usedToday});
   leftCount--;
   document.getElementById('left').textContent = leftCount;
   reply(text);
@@ -257,7 +262,16 @@ function handle(text){
 }
 
 // opening
-setTimeout(()=>{ chat.appendChild(el('<p class="name">ENTJ-KUN</p>')); botSay('ようこそ、ENTJくんの部屋へ！TikTokのコメント欄で答えてきた相談と、ENTJである僕自身の思考データをもとに、彼の頭の中を「彼視点」で解説します。ときどき忖度抜きでズバリ言いますが、それも含めて頼ってください！'); }, 500);
+document.getElementById('left').textContent = leftCount;
+setTimeout(()=>{
+  chat.appendChild(el('<p class="name">ENTJ-KUN</p>'));
+  if(leftCount<=0){
+    gateShown = true;
+    botSay('今日の無料相談はここまでです！たくさん話してくれてありがとうございました。回数は毎日リセットされるので、また明日来てください。TikTokのコメント欄でも待っています！');
+  } else {
+    botSay('ようこそ、ENTJくんの部屋へ！TikTokのコメント欄で答えてきた相談と、ENTJである僕自身の思考データをもとに、彼の頭の中を「彼視点」で解説します。ときどき忖度抜きでズバリ言いますが、それも含めて頼ってください！');
+  }
+}, 500);
 </script>
 </body>
 </html>
