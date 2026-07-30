@@ -78,6 +78,7 @@
     if(q.indexOf('noga=0')>-1) localStorage.removeItem('noga');
   }catch(e){}
   var off=false; try{ off = localStorage.getItem('noga')==='1'; }catch(e){}
+  try{ if(navigator.webdriver || /bot|crawl|spider|headless|lighthouse|slurp|bingpreview|facebookexternalhit|embedly|outbrain|pinterest|vkshare|w3c_validator|whatsapp|telegrambot|phantomjs|puppeteer|playwright/i.test(navigator.userAgent||'')) off = true; }catch(e){}
   window.__noga = off;
   window.dataLayer = window.dataLayer || [];
   window.gtag = function(){ dataLayer.push(arguments); };
