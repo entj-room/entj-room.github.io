@@ -40,7 +40,7 @@
   .msg { display:flex; gap:8px; align-items:flex-end; max-width:88%; }
   .msg .mini { width:28px; height:28px; border-radius:50%; background:var(--lav); border:1.5px solid var(--lav2); flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
   .msg .mini svg { width:20px; height:20px; }
-  .bubble { background:#fff; border:1px solid var(--line); border-radius:16px 16px 16px 4px; padding:11px 13px; font-size:12.5px; line-height:1.9; }
+  .bubble { background:#fff; border:1px solid var(--line); border-radius:16px 16px 16px 4px; padding:11px 13px; font-size:12.5px; line-height:1.9; white-space:pre-wrap; }
   .msg.user { align-self:flex-end; flex-direction:row-reverse; }
   .msg.user .bubble { background:var(--grad); color:#fff; border:none; border-radius:16px 16px 4px 16px; }
   .name { font-family:"Jost",sans-serif; font-size:8px; letter-spacing:.2em; color:var(--sub); margin:0 0 3px 36px; }
@@ -60,8 +60,8 @@
   .chips::-webkit-scrollbar { display:none; }
   .chip { flex:0 0 auto; border:1.5px solid var(--lav2); background:#fff; color:var(--ink); border-radius:999px; padding:9px 14px; font-size:11px; font-weight:700; cursor:pointer; }
   .inputbar { display:flex; gap:8px; padding:10px 14px; background:#FBFAFF; position:sticky; bottom:0; border-top:1px solid var(--line); align-items:center; }
-  .inputbar input { flex:1; border:1.5px solid var(--lav2); background:#fff; border-radius:999px; padding:12px 16px; font-size:13px; font-family:inherit; outline:none; color:var(--text); }
-  .inputbar input:focus { border-color:var(--ink2); }
+  .inputbar input, .inputbar textarea { flex:1; border:1.5px solid var(--lav2); background:#fff; border-radius:20px; padding:12px 16px; font-size:13px; font-family:inherit; outline:none; color:var(--text); resize:none; line-height:1.6; max-height:120px; }
+  .inputbar input:focus, .inputbar textarea:focus { border-color:var(--ink2); }
   .send { width:42px; height:42px; border-radius:50%; background:var(--grad); border:none; color:#fff; font-size:16px; cursor:pointer; box-shadow:0 4px 12px rgba(59,58,143,.3); flex:0 0 auto; }
   .quota { text-align:center; font-size:9px; color:var(--sub); padding:4px 0 8px; background:#FBFAFF; }
 
@@ -127,7 +127,7 @@
     <button class="chip" onclick="ask('どんな人が好き？')">どんな人が好き？</button>
   </div>
   <div class="inputbar">
-    <input id="input" type="text" placeholder="彼のことで気になっていることは？" onkeydown="if(event.key==='Enter')send()">
+    <textarea id="input" rows="1" placeholder="彼のことで気になっていることは？(Shift+Enterで送信)" onkeydown="if(event.key==='Enter'&&event.shiftKey){event.preventDefault();send();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';"></textarea>
     <button class="send" onclick="send()">↑</button>
   </div>
   <div class="quota" id="quota">無料相談:今日はあと <b id="left">10</b> 往復</div>
@@ -242,6 +242,7 @@ function send(){
   if(!input.value.trim()) return;
   handle(input.value.trim());
   input.value='';
+  input.style.height='auto';
 }
 let sentCount = 0;
 function handle(text){
