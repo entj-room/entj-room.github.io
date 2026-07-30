@@ -130,7 +130,7 @@
     <textarea id="input" rows="1" placeholder="彼のことで気になっていることは？(Shift+Enterで送信)" onkeydown="if(event.key==='Enter'&&event.shiftKey){event.preventDefault();send();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';"></textarea>
     <button class="send" onclick="send()">↑</button>
   </div>
-  <div class="quota" id="quota">無料相談:今日はあと <b id="left">10</b> 往復</div>
+  <div class="quota" id="quota">無料相談:あと <b id="left">10</b> 往復(テスト運用中)</div>
 
   <div class="foot">
     <p>※このチャットはENTJ本人が監修したAIです。トークは本人も確認し、回答の改善に使われます。相談内容はAI回答の生成のため外部のAIサービスに送信されます。本名や連絡先など、個人が特定される情報は書かないでください。内容は一般的なアドバイスであり、特定の結果を保証するものではありません。本サービスは特定の性格検査団体とは無関係です。つらい気持ちが続くときは、1人で抱え込まず信頼できる人や専門の窓口にも頼ってくださいね。</p>
@@ -140,9 +140,9 @@
 <script>
 const chat = document.getElementById('chat');
 const AVA = '<svg viewBox="0 0 48 48"><polygon points="24,4 34,10 34,20 24,26 14,20 14,10" fill="#2E2D73"/><polygon points="24,8 30,11.5 24,15 18,11.5" fill="#F0C9A8"/><rect x="19" y="14" width="10" height="5" rx="1" fill="#F0C9A8"/><polygon points="24,26 38,34 38,44 10,44 10,34" fill="#5B59B8"/><polygon points="24,26 30,30 24,40 18,30" fill="#fff"/></svg>';
-function todayKey(){ var d=new Date(); return 'entj_used_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+var QUOTA_KEY = 'entj_used_total';
 let usedToday = 0;
-try{ usedToday = parseInt(localStorage.getItem(todayKey())||'0',10)||0; }catch(e){}
+try{ usedToday = parseInt(localStorage.getItem(QUOTA_KEY)||'0',10)||0; }catch(e){}
 let leftCount = Math.max(0, 10 - usedToday);
 let gateShown = false;
 
@@ -174,7 +174,7 @@ function showLimit(){
   gateShown = true;
   track('limit_reached', {messages_sent: sentCount});
   setTimeout(()=>{
-    botSay('今日の無料相談はここまでです！ここまで話してくれてありがとうございました。続きが聞きたくなったら、また明日来てください。TikTokのコメント欄でも待っています！');
+    botSay('ここまで相談してくれてありがとうございました！現在テスト運用中のため、無料相談はお1人さま10往復までとさせていただいています。次の開放まで、もう少しお待ちください。それまでの間も、TikTokのコメント欄で相談を受け付けています！');
   }, 2600);
 }
 
@@ -252,7 +252,7 @@ function handle(text){
   userSay(text);
   usedToday++;
   sentCount = usedToday;
-  try{ localStorage.setItem(todayKey(), String(usedToday)); }catch(e){}
+  try{ localStorage.setItem(QUOTA_KEY, String(usedToday)); }catch(e){}
   if(usedToday===1) track('chat_start');
   track('chat_message', {message_number: usedToday});
   leftCount--;
@@ -267,7 +267,7 @@ setTimeout(()=>{
   chat.appendChild(el('<p class="name">ENTJ-KUN</p>'));
   if(leftCount<=0){
     gateShown = true;
-    botSay('今日の無料相談はここまでです！たくさん話してくれてありがとうございました。回数は毎日リセットされるので、また明日来てください。TikTokのコメント欄でも待っています！');
+    botSay('たくさん相談してくれてありがとうございました！現在テスト運用中のため、無料相談はお1人さま10往復までとさせていただいています。次の開放まで、もう少しお待ちください。それまでの間も、TikTokのコメント欄で相談を受け付けています！');
   } else {
     botSay('ようこそ、ENTJくんの部屋へ！TikTokのコメント欄で答えてきた相談と、ENTJである僕自身の思考データをもとに、彼の頭の中を「彼視点」で解説します。ときどき忖度抜きでズバリ言いますが、それも含めて頼ってください！');
   }
