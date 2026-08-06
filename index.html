@@ -60,9 +60,8 @@
   .chips::-webkit-scrollbar { display:none; }
   .chip { flex:0 0 auto; border:1.5px solid var(--lav2); background:#fff; color:var(--ink); border-radius:999px; padding:9px 14px; font-size:11px; font-weight:700; cursor:pointer; }
   .bottomstick { position:sticky; bottom:0; z-index:9; }
-  .linebar { padding:0 14px 10px; background:#FBFAFF; }
-  .linebar a { display:flex; align-items:center; justify-content:center; gap:7px; background:#06C755; color:#fff; font-weight:900; font-size:12.5px; letter-spacing:.04em; padding:12px; border-radius:999px; text-decoration:none; box-shadow:0 4px 14px rgba(6,199,85,.32); }
-  .linebar svg { width:16px; height:16px; flex:0 0 auto; }
+  .footcta { display:flex; align-items:center; justify-content:center; gap:7px; background:#06C755; color:#fff; font-weight:900; font-size:12.5px; letter-spacing:.04em; padding:12px; border-radius:999px; text-decoration:none; box-shadow:0 4px 14px rgba(6,199,85,.32); }
+  .footcta svg { width:16px; height:16px; flex:0 0 auto; }
   .inputbar { display:flex; gap:8px; padding:10px 14px; background:#FBFAFF; border-top:1px solid var(--line); align-items:center; }
   .inputbar input, .inputbar textarea { flex:1; border:1.5px solid var(--lav2); background:#fff; border-radius:20px; padding:12px 16px; font-size:13px; font-family:inherit; outline:none; color:var(--text); resize:none; line-height:1.6; max-height:120px; }
   .inputbar input:focus, .inputbar textarea:focus { border-color:var(--ink2); }
@@ -136,14 +135,11 @@
         <textarea id="input" rows="1" placeholder="彼のことで気になっていることは？" onkeydown="if(event.key==='Enter'&&event.shiftKey){event.preventDefault();send();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';"></textarea>
     <button class="send" onclick="send()">↑</button>
     </div>
-    <div class="linebar" id="lineBar" style="display:none">
-      <a id="lineBarBtn" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.6 1.5 4.9 3.9 6.4-.1.6-.5 2-.6 2.4-.1.5.2.5.5.4.2-.1 2.6-1.7 3.6-2.4.8.2 1.7.3 2.6.3 5.5 0 10-3.6 10-8S17.5 3 12 3z" fill="#fff"/></svg>本人に直接相談したい方はこちら</a>
-    </div>
   </div>
   <div class="quota" id="quota">無料相談:あと <b id="left">10</b> 往復(テスト運用中)</div>
 
   <div class="foot">
-    <p id="lineFootWrap" style="display:none;text-align:center;margin-bottom:8px;font-size:11px;line-height:1.8"><a id="lineFoot" href="#" target="_blank" rel="noopener" style="color:#06C755;font-weight:900;text-decoration:none">本人に直接相談したい方はこちら(LINE) →</a></p>
+    <div id="lineFootWrap" style="display:none;margin-bottom:12px"><a id="lineFoot" href="#" target="_blank" rel="noopener" class="footcta"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.6 1.5 4.9 3.9 6.4-.1.6-.5 2-.6 2.4-.1.5.2.5.5.4.2-.1 2.6-1.7 3.6-2.4.8.2 1.7.3 2.6.3 5.5 0 10-3.6 10-8S17.5 3 12 3z" fill="#fff"/></svg>本人に直接相談したい方はこちら</a></div>
     <p>※このチャットはENTJ本人が監修したAIです。トークは本人も確認し、回答の改善に使われます。相談内容はAI回答の生成のため外部のAIサービスに送信されます。本名や連絡先など、個人が特定される情報は書かないでください。内容は一般的なアドバイスであり、特定の結果を保証するものではありません。本サービスは特定の性格検査団体とは無関係です。つらい気持ちが続くときは、1人で抱え込まず信頼できる人や専門の窓口にも頼ってくださいね。</p>
   </div>
 </div>
@@ -291,10 +287,6 @@ if(LINE_URL){
   lf.href = LINE_URL;
   lf.addEventListener('click', function(){ track('line_click', {placement:'footer'}); });
   document.getElementById('lineFootWrap').style.display = 'block';
-  const lb = document.getElementById('lineBarBtn');
-  lb.href = LINE_URL;
-  lb.addEventListener('click', function(){ track('line_click', {placement:'banner'}); });
-  document.getElementById('lineBar').style.display = 'block';
 }
 document.getElementById('left').textContent = leftCount;
 setTimeout(()=>{
